@@ -1,0 +1,38 @@
+cd "F:\data\Hugo\DB_2015_02_d18\entradas"
+
+r.in.gdal in=all_landscapes_r5.img out=all_landscapes_r5_img
+r.colors map=all_landscapes_r5_img color=random
+r.colors map=mapa_final_int@PERMANENT color=random
+
+
+r.reclass input=all_landscapes_r5_img output=all_landscapes_r5_img_rec<<EOF
+1=1
+2=2
+4=4
+6=8
+8=16
+10=32
+12=64
+14=128
+16=256
+18=512
+20=1024
+22=2048
+24=4096
+26=8192
+28=16384
+30=32768
+32=65536
+34=131072
+36=262144
+EOF
+
+
+#
+listmaps=`g.mlist pattern="*dila*" sep=comma`
+r.series in=$listmaps out=mapa_final method=sum
+r.mapcalc "mapa_final_int=int(mapa_final)"
+r.mapcalc "mapa_final_int_limpo=if(all_landscapes_r5_img_rec>0,mapa_final_int,null())
+
+cd "F:\data\Hugo\DB_2015_02_d18\saidas_grass"
+r.out.gdal in=mapa_final_int@PERMANENT out=mapa_final_int.tif
